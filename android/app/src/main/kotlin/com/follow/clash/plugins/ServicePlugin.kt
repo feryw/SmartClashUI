@@ -10,17 +10,19 @@ import com.google.gson.Gson
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 
-class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
-
-    private val service = Service(GlobalState.application, ::handleServiceCrash)
+class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler,
+    CoroutineScope by CoroutineScope(SupervisorJob() + Dispatchers.Default) {
     private lateinit var flutterMethodChannel: MethodChannel
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+        Service.bind()
         flutterMethodChannel = MethodChannel(
             flutterPluginBinding.binaryMessenger, "${Components.PACKAGE_NAME}/service"
         )
@@ -28,7 +30,7 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     }
 
     override fun onDetachedFromEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        service.unbind()
+        Service.unbind()
         flutterMethodChannel.setMethodCallHandler(null)
     }
 
@@ -59,9 +61,9 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     }
 
     private fun handleInvokeAction(call: MethodCall, result: MethodChannel.Result) {
-        GlobalState.launch {
+        launch {
             val data = call.arguments<String>()!!
-            service.invokeAction(data) {
+            Service.invokeAction(data) {
                 result.success(it)
             }
         }
@@ -87,17 +89,17 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     }
 
     suspend fun startService(options: VpnOptions, inApp: Boolean) {
-        service.startService(options, inApp)
+        Service.startService(options, inApp)
     }
 
     suspend fun stopService() {
-        service.stopService()
+        Service.stopService()
     }
 
     val semaphore = Semaphore(10)
 
     fun handleSendMessage(value: String?) {
-        GlobalState.launch(Dispatchers.Main) {
+        launch(Dispatchers.Main) {
             semaphore.withPermit {
                 flutterMethodChannel.invokeMethod("message", value)
             }
@@ -105,9 +107,8 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     }
 
     fun handleInit(result: MethodChannel.Result) {
-        GlobalState.launch {
-            service.bind()
-            service.setMessageCallback {
+        launch {
+            Service.setMessageCallback {
                 GlobalState.launch(Dispatchers.Main) {
                     handleSendMessage(it)
                 }

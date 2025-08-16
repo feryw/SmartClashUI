@@ -106,6 +106,9 @@ class GlobalState {
     if (tasks != null) {
       this.tasks = tasks;
     }
+    if (this.tasks.isEmpty) {
+      return;
+    }
     await executorUpdateTask();
     timer = Timer(const Duration(seconds: 1), () async {
       startUpdateTasks();

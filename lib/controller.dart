@@ -546,7 +546,7 @@ class AppController {
   Future<void> _initCore() async {
     final isInit = await clashCore.isInit;
     if (!isInit) {
-      await clashCore.init();
+      await clashCore.init(globalState.appState.version);
     }
     await applyProfile();
   }

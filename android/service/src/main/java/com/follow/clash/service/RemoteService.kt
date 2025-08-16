@@ -3,20 +3,26 @@ package com.follow.clash.service
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import com.follow.clash.common.GlobalState
+import com.follow.clash.common.QuickAction
 import com.follow.clash.common.ServiceDelegate
 import com.follow.clash.common.intent
+import com.follow.clash.common.quickIntent
+import com.follow.clash.common.toPendingIntent
 import com.follow.clash.core.Core
 import com.follow.clash.service.models.NotificationParams
 import com.follow.clash.service.models.VpnOptions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
-class RemoteService : Service() {
+class RemoteService : Service(),
+    CoroutineScope by CoroutineScope(SupervisorJob() + Dispatchers.Default) {
     private var delegate: ServiceDelegate<IBaseService>? = null
     private var intent: Intent? = null
 
     private fun handleStopService() {
-        GlobalState.launch {
+        launch {
             delegate?.useService { service ->
                 service.stop()
             }
@@ -24,16 +30,19 @@ class RemoteService : Service() {
         }
     }
 
+    private fun handleSendStopAction() {
+        QuickAction.STOP.quickIntent.toPendingIntent.send()
+    }
+
     private fun handleStartService() {
-        val context = this
-        GlobalState.launch {
+        launch {
             val nextIntent = when (State.options?.enable == true) {
                 true -> VpnService::class.intent
                 false -> CommonService::class.intent
             }
             if (intent != nextIntent) {
                 delegate?.unbind()
-                delegate = ServiceDelegate(context, nextIntent) { binder ->
+                delegate = ServiceDelegate(nextIntent, ::handleSendStopAction) { binder ->
                     when (binder) {
                         is VpnService.LocalBinder -> binder.getService()
                         is CommonService.LocalBinder -> binder.getService()

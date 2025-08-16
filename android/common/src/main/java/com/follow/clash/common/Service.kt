@@ -1,6 +1,5 @@
 package com.follow.clash.common
 
-import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import kotlinx.coroutines.CoroutineScope
@@ -14,7 +13,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
 class ServiceDelegate<T>(
-    private val context: Context,
     private val intent: Intent,
     private val onServiceCrash: (() -> Unit)? = null,
     private val interfaceCreator: (IBinder) -> T,
@@ -26,9 +24,10 @@ class ServiceDelegate<T>(
 
     fun bind() {
         launch {
-            context.bindServiceFlow<IBinder>(intent, onCrash = onServiceCrash)
+            GlobalState.application.bindServiceFlow<IBinder>(intent, onCrash = onServiceCrash)
                 .collect { binder ->
                     _service.value = binder?.let(interfaceCreator)
+
                 }
         }
     }

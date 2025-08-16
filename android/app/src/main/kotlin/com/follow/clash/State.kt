@@ -4,11 +4,15 @@ import com.follow.clash.common.GlobalState
 import com.follow.clash.plugins.AppPlugin
 import com.follow.clash.plugins.ServicePlugin
 import com.follow.clash.plugins.TilePlugin
+import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.embedding.engine.dart.DartExecutor
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 enum class RunState {
     START, PENDING, STOP
@@ -23,44 +27,38 @@ object State {
 
     val runStateFlow: MutableStateFlow<RunState> = MutableStateFlow(RunState.STOP)
     var flutterEngine: FlutterEngine? = null
+    var serviceFlutterEngine: FlutterEngine? = null
 
     val appPlugin: AppPlugin?
-        get() = flutterEngine?.plugin<AppPlugin>()
+        get() = flutterEngine?.plugin<AppPlugin>() ?: serviceFlutterEngine?.plugin<AppPlugin>()
 
     val servicePlugin: ServicePlugin?
         get() = flutterEngine?.plugin<ServicePlugin>()
+            ?: serviceFlutterEngine?.plugin<ServicePlugin>()
 
     val tilePlugin: TilePlugin?
-        get() = flutterEngine?.plugin<TilePlugin>()
+        get() = flutterEngine?.plugin<TilePlugin>() ?: serviceFlutterEngine?.plugin<TilePlugin>()
 
-    fun handleToggleAction() {
-        GlobalState.launch {
-            var action: (() -> Unit)?
-            runLock.withLock {
-                action = when (runStateFlow.value) {
-                    RunState.PENDING -> null
-                    RunState.START -> ::handleStopServiceAction
-                    RunState.STOP -> ::handleStartServiceAction
-                }
+    suspend fun handleToggleAction() {
+        var action: (suspend () -> Unit)?
+        runLock.withLock {
+            action = when (runStateFlow.value) {
+                RunState.PENDING -> null
+                RunState.START -> ::handleStopServiceAction
+                RunState.STOP -> ::handleStartServiceAction
             }
-            action?.invoke()
         }
+        action?.invoke()
     }
 
-    fun handleStartServiceAction() {
-        tilePlugin?.let {
-            it.handleStart()
-            return
-        }
-        handleStartService()
+    suspend fun handleStartServiceAction() {
+        tilePlugin?.handleStart()
+        startServiceWithEngine()
     }
 
-    fun handleStopServiceAction() {
-        tilePlugin?.let {
-            it.handleStop()
-            return
-        }
-        handleStopService()
+    suspend fun handleStopServiceAction() {
+        tilePlugin?.handleStop()
+        destroyServiceEngine()
     }
 
     fun handleStartService() {
@@ -71,6 +69,33 @@ object State {
             return
         }
         startService()
+    }
+
+    suspend fun destroyServiceEngine() {
+        runLock.withLock {
+            serviceFlutterEngine?.destroy()
+            serviceFlutterEngine = null
+        }
+    }
+
+    suspend fun startServiceWithEngine() {
+        if (flutterEngine != null) {
+            return
+        }
+        destroyServiceEngine()
+        runLock.withLock {
+            withContext(Dispatchers.Main) {
+                serviceFlutterEngine = FlutterEngine(GlobalState.application)
+                serviceFlutterEngine?.plugins?.add(ServicePlugin())
+                serviceFlutterEngine?.plugins?.add(AppPlugin())
+                serviceFlutterEngine?.plugins?.add(TilePlugin())
+                val dartEntrypoint = DartExecutor.DartEntrypoint(
+                    FlutterInjector.instance().flutterLoader().findAppBundlePath(), "_service"
+                )
+                serviceFlutterEngine?.dartExecutor?.executeDartEntrypoint(dartEntrypoint)
+            }
+
+        }
     }
 
     private fun startService() {

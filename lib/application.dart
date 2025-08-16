@@ -48,7 +48,6 @@ class ApplicationState extends ConsumerState<Application> {
   @override
   void initState() {
     super.initState();
-    _autoUpdateGroupTask();
     _autoUpdateProfilesTask();
     globalState.appController = AppController(context, ref);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
@@ -59,15 +58,6 @@ class ApplicationState extends ConsumerState<Application> {
       await globalState.appController.init();
       globalState.appController.initLink();
       app?.initShortcuts();
-    });
-  }
-
-  void _autoUpdateGroupTask() {
-    _autoUpdateGroupTaskTimer = Timer(const Duration(milliseconds: 20000), () {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        globalState.appController.updateGroupsDebounce();
-        _autoUpdateGroupTask();
-      });
     });
   }
 

@@ -110,8 +110,6 @@ class VpnService : SystemVpnService(), IBaseService {
     }
 
     private fun handleStart(options: VpnOptions) {
-        notificationModule.install()
-        networkObserveModule.install()
         val fd = with(Builder()) {
             val cidr = IPV4_ADDRESS.toCIDR()
             addAddress(cidr.address, cidr.prefixLength)

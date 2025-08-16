@@ -188,22 +188,6 @@ func invokeAction(callback unsafe.Pointer, paramsChar *C.char) {
 	go handleAction(action, result)
 }
 
-//export quickStart
-func quickStart(initParamsChar *C.char, paramsChar *C.char, stateParamsChar *C.char, port C.longlong) {
-	//i := int64(port)
-	//paramsString := C.GoString(initParamsChar)
-	//bytes := []byte(C.GoString(paramsChar))
-	//stateParams := C.GoString(stateParamsChar)
-	//go func() {
-	//	res := handleInitClash(paramsString)
-	//	if res == false {
-	//		bridge.SendToPort(i, "init error")
-	//	}
-	//	handleSetState(stateParams)
-	//	bridge.SendToPort(i, handleSetupConfig(bytes))
-	//}()
-}
-
 //export startTUN
 func startTUN(callback unsafe.Pointer, fd C.int, addressChar, dnsChar *C.char) bool {
 	go func() {

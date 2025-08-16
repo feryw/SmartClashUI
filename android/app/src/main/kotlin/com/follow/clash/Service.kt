@@ -1,31 +1,37 @@
 package com.follow.clash
 
-import android.app.Application
 import com.follow.clash.common.ServiceDelegate
 import com.follow.clash.common.intent
 import com.follow.clash.service.ICallbackInterface
 import com.follow.clash.service.IRemoteInterface
 import com.follow.clash.service.RemoteService
 import com.follow.clash.service.models.VpnOptions
+import java.util.concurrent.atomic.AtomicBoolean
 
-class Service(
-    context: Application,
-    onServiceCrash: (() -> Unit)? = null,
-) {
-    private val delegate = ServiceDelegate<IRemoteInterface>(
-        context,
-        RemoteService::class.intent,
-        onServiceCrash,
-    ) {
-        IRemoteInterface.Stub.asInterface(it)
+object Service {
+    private val delegate by lazy {
+        ServiceDelegate<IRemoteInterface>(
+            RemoteService::class.intent,
+        ) {
+            IRemoteInterface.Stub.asInterface(it)
+        }
     }
 
-    fun bind() {
-        delegate.bind()
+    private val bindingState = AtomicBoolean(false)
+
+    fun bind(): Boolean {
+        return if (bindingState.compareAndSet(false, true)) {
+            delegate.bind()
+            true
+        } else {
+            false
+        }
     }
 
     fun unbind() {
-        delegate.unbind()
+        if (bindingState.compareAndSet(true, false)) {
+            delegate.unbind()
+        }
     }
 
     suspend fun invokeAction(

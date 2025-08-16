@@ -8,7 +8,6 @@ import 'package:fl_clash/clash/interface.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/state.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 
@@ -64,18 +63,13 @@ class ClashCore {
     }
   }
 
-  Future<bool> init() async {
+  Future<bool> init(int version) async {
     await initGeo();
-    if (globalState.config.appSetting.openLogs) {
-      clashCore.startLog();
-    } else {
-      clashCore.stopLog();
-    }
     final homeDirPath = await appPath.homeDirPath;
     return await clashInterface.init(
       InitParams(
         homeDir: homeDirPath,
-        version: globalState.appState.version,
+        version: version,
       ),
     );
   }

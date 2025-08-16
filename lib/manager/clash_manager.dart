@@ -46,7 +46,6 @@ class _ClashContainerState extends ConsumerState<ClashManager>
         globalState.appController.updateClashConfigDebounce();
       }
     });
-
     ref.listenManual(
       appSettingProvider.select((state) => state.openLogs),
       (prev, next) {
@@ -56,6 +55,7 @@ class _ClashContainerState extends ConsumerState<ClashManager>
           clashCore.stopLog();
         }
       },
+      fireImmediately: true,
     );
   }
 
