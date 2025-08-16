@@ -19,12 +19,9 @@ object Service {
 
     private val bindingState = AtomicBoolean(false)
 
-    fun bind(): Boolean {
-        return if (bindingState.compareAndSet(false, true)) {
+    fun bind() {
+        if (bindingState.compareAndSet(false, true)) {
             delegate.bind()
-            true
-        } else {
-            false
         }
     }
 

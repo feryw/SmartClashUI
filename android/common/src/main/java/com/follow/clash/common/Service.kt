@@ -24,6 +24,7 @@ class ServiceDelegate<T>(
 
     fun bind() {
         launch {
+            GlobalState.log("Binding service ${intent.component?.shortClassName}")
             GlobalState.application.bindServiceFlow<IBinder>(intent, onCrash = onServiceCrash)
                 .collect { binder ->
                     _service.value = binder?.let(interfaceCreator)

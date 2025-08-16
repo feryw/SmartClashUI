@@ -82,7 +82,6 @@ object State {
         if (flutterEngine != null) {
             return
         }
-        destroyServiceEngine()
         runLock.withLock {
             withContext(Dispatchers.Main) {
                 serviceFlutterEngine = FlutterEngine(GlobalState.application)
