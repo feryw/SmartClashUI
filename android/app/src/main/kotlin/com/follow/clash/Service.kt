@@ -11,11 +11,13 @@ import java.util.concurrent.atomic.AtomicBoolean
 object Service {
     private val delegate by lazy {
         ServiceDelegate<IRemoteInterface>(
-            RemoteService::class.intent,
+            RemoteService::class.intent, this.onServiceCrash
         ) {
             IRemoteInterface.Stub.asInterface(it)
         }
     }
+
+    var onServiceCrash: (() -> Unit)? = null
 
     private val bindingState = AtomicBoolean(false)
 

@@ -190,9 +190,7 @@ func invokeAction(callback unsafe.Pointer, paramsChar *C.char) {
 
 //export startTUN
 func startTUN(callback unsafe.Pointer, fd C.int, addressChar, dnsChar *C.char) bool {
-	go func() {
-		handleStartTun(callback, int(fd), C.GoString(addressChar), C.GoString(dnsChar))
-	}()
+	handleStartTun(callback, int(fd), C.GoString(addressChar), C.GoString(dnsChar))
 	return true
 }
 
@@ -228,9 +226,7 @@ func sendMessage(message Message) {
 
 //export stopTun
 func stopTun() {
-	go func() {
-		handleStopTun()
-	}()
+	handleStopTun()
 }
 
 //export forceGC

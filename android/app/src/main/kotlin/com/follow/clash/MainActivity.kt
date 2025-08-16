@@ -2,19 +2,18 @@ package com.follow.clash
 
 import android.os.Bundle
 import android.os.PersistableBundle
+import com.follow.clash.common.GlobalState
 import com.follow.clash.plugins.AppPlugin
 import com.follow.clash.plugins.ServicePlugin
 import com.follow.clash.plugins.TilePlugin
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class MainActivity : FlutterActivity(), CoroutineScope by CoroutineScope(Dispatchers.Default) {
+class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
         super.onCreate(savedInstanceState, persistentState)
-        launch {
+        GlobalState.launch {
             State.destroyServiceEngine()
         }
     }

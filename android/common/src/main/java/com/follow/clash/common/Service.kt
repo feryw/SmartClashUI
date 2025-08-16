@@ -4,8 +4,8 @@ import android.content.Intent
 import android.os.IBinder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -22,14 +22,30 @@ class ServiceDelegate<T>(
 
     val service: StateFlow<T?> = _service
 
-    fun bind() {
-        launch {
-            GlobalState.log("Binding service ${intent.component?.shortClassName}")
-            GlobalState.application.bindServiceFlow<IBinder>(intent, onCrash = onServiceCrash)
-                .collect { binder ->
-                    _service.value = binder?.let(interfaceCreator)
+    private var bindJob: Job? = null
+    private fun handleBindEvent(event: BindServiceEvent<IBinder>) {
+        when (event) {
+            is BindServiceEvent.Connected -> {
+                _service.value = event.binder.let(interfaceCreator)
+            }
 
-                }
+            is BindServiceEvent.Disconnected -> {
+                _service.value = null
+            }
+
+            is BindServiceEvent.Crashed -> {
+                _service.value = null
+                onServiceCrash?.invoke()
+            }
+        }
+    }
+
+    fun bind() {
+        unbind()
+        bindJob = launch {
+            GlobalState.application.bindServiceFlow<IBinder>(intent).collect { it ->
+                handleBindEvent(it)
+            }
         }
     }
 
@@ -47,6 +63,7 @@ class ServiceDelegate<T>(
 
     fun unbind() {
         _service.value = null
-        cancel()
+        bindJob?.cancel()
+        bindJob = null
     }
 }

@@ -103,16 +103,21 @@ fun Context.receiveBroadcastFlow(
 }
 
 
+sealed class BindServiceEvent<out T : IBinder> {
+    data class Connected<T : IBinder>(val binder: T) : BindServiceEvent<T>()
+    object Disconnected : BindServiceEvent<Nothing>()
+    object Crashed : BindServiceEvent<Nothing>()
+}
+
 inline fun <reified T : IBinder> Context.bindServiceFlow(
     intent: Intent,
     flags: Int = Context.BIND_AUTO_CREATE,
-    noinline onCrash: (() -> Unit)? = null,
-): Flow<T?> = callbackFlow {
+): Flow<BindServiceEvent<T>> = callbackFlow {
     var currentBinder: IBinder? = null
     val deathRecipient = IBinder.DeathRecipient {
-        onCrash?.invoke()
-        trySend(null)
+        trySend(BindServiceEvent.Crashed)
     }
+
     val connection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
             if (binder != null) {
@@ -122,39 +127,39 @@ inline fun <reified T : IBinder> Context.bindServiceFlow(
                     @Suppress("UNCHECKED_CAST")
                     val casted = binder as? T
                     if (casted != null) {
-                        trySend(casted)
+                        trySend(BindServiceEvent.Connected(casted))
                     } else {
-                        Log.d("[BindService]", "Binder is not of type ${T::class.java}")
-                        trySend(null)
+                        GlobalState.log("Binder is not of type ${T::class.java}")
+                        trySend(BindServiceEvent.Disconnected)
                     }
                 } catch (e: RemoteException) {
-                    Log.d("[BindService]", "Failed to link to death: ${e.message}")
+                    GlobalState.log("Failed to link to death: ${e.message}")
                     binder.unlinkToDeath(deathRecipient, 0)
-                    trySend(null)
+                    trySend(BindServiceEvent.Disconnected)
                 }
             } else {
-                trySend(null)
+                trySend(BindServiceEvent.Disconnected)
             }
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            Log.d("[BindService]", "Service disconnected")
+            GlobalState.log("Service disconnected")
             currentBinder?.unlinkToDeath(deathRecipient, 0)
             currentBinder = null
-            trySend(null)
+            trySend(BindServiceEvent.Disconnected)
         }
     }
 
     if (!bindService(intent, connection, flags)) {
-        Log.d("[BindService]", "Failed to bind service")
-        trySend(null)
+        GlobalState.log("Failed to bind service")
+        trySend(BindServiceEvent.Disconnected)
         close()
         return@callbackFlow
     }
 
     awaitClose {
         currentBinder?.unlinkToDeath(deathRecipient, 0)
-        runCatching { unbindService(connection) }
+        unbindService(connection)
     }
 }
 

@@ -106,6 +106,10 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler,
         }
     }
 
+    private fun onServiceCrash() {
+
+    }
+
     fun handleInit(result: MethodChannel.Result) {
         launch {
             Service.setMessageCallback {
@@ -115,6 +119,7 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler,
             }
             result.success(true)
         }
+        Service.onServiceCrash = ::onServiceCrash
     }
 
     private fun handleGetRunTime(result: MethodChannel.Result) {
