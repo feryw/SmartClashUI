@@ -36,37 +36,53 @@ type TunHandler struct {
 	limit *semaphore.Weighted
 }
 
-func (t *TunHandler) close() {
-	_ = t.limit.Acquire(context.TODO(), 4)
-	defer t.limit.Release(4)
-	removeTunHook()
-	if t.listener != nil {
-		_ = t.listener.Close()
+func (th *TunHandler) start(fd int, address, dns string) {
+	_ = th.limit.Acquire(context.TODO(), 4)
+	defer th.limit.Release(4)
+	th.initHook()
+	tunListener := t.Start(fd, currentConfig.General.Tun.Device, currentConfig.General.Tun.Stack, address, dns)
+	if tunListener != nil {
+		log.Infoln("TUN address: %v", tunListener.Address())
+		th.listener = tunListener
+		return
 	}
-
-	if t.callback != nil {
-		releaseObject(t.callback)
-	}
-	t.callback = nil
-	t.listener = nil
+	th.clear()
 }
 
-func (t *TunHandler) handleProtect(fd int) {
-	_ = t.limit.Acquire(context.Background(), 1)
-	defer t.limit.Release(1)
+func (th *TunHandler) close() {
+	_ = th.limit.Acquire(context.TODO(), 4)
+	defer th.limit.Release(4)
+	th.clear()
+}
 
-	if t.listener == nil {
+func (th *TunHandler) clear() {
+	th.removeHook()
+	if th.listener != nil {
+		_ = th.listener.Close()
+	}
+	if th.callback != nil {
+		releaseObject(th.callback)
+	}
+	th.callback = nil
+	th.listener = nil
+}
+
+func (th *TunHandler) handleProtect(fd int) {
+	_ = th.limit.Acquire(context.Background(), 1)
+	defer th.limit.Release(1)
+
+	if th.listener == nil {
 		return
 	}
 
-	protect(t.callback, fd)
+	protect(th.callback, fd)
 }
 
-func (t *TunHandler) handleResolveProcess(source, target net.Addr) string {
-	_ = t.limit.Acquire(context.Background(), 1)
-	defer t.limit.Release(1)
+func (th *TunHandler) handleResolveProcess(source, target net.Addr) string {
+	_ = th.limit.Acquire(context.Background(), 1)
+	defer th.limit.Release(1)
 
-	if t.listener == nil {
+	if th.listener == nil {
 		return ""
 	}
 	var protocol int
@@ -80,7 +96,30 @@ func (t *TunHandler) handleResolveProcess(source, target net.Addr) string {
 	if version < 29 {
 		uid = platform.QuerySocketUidFromProcFs(source, target)
 	}
-	return resolveProcess(t.callback, protocol, source.String(), target.String(), uid)
+	return resolveProcess(th.callback, protocol, source.String(), target.String(), uid)
+}
+
+func (th *TunHandler) initHook() {
+	dialer.DefaultSocketHook = func(network, address string, conn syscall.RawConn) error {
+		if platform.ShouldBlockConnection() {
+			return errBlocked
+		}
+		return conn.Control(func(fd uintptr) {
+			tunHandler.handleProtect(int(fd))
+		})
+	}
+	process.DefaultPackageNameResolver = func(metadata *constant.Metadata) (string, error) {
+		src, dst := metadata.RawSrcAddr, metadata.RawDstAddr
+		if src == nil || dst == nil {
+			return "", process.ErrInvalidNetwork
+		}
+		return tunHandler.handleResolveProcess(src, dst), nil
+	}
+}
+
+func (th *TunHandler) removeHook() {
+	dialer.DefaultSocketHook = nil
+	process.DefaultPackageNameResolver = nil
 }
 
 var (
@@ -106,38 +145,8 @@ func handleStartTun(callback unsafe.Pointer, fd int, address, dns string) {
 			callback: callback,
 			limit:    semaphore.NewWeighted(4),
 		}
-		initTunHook()
-		tunListener, _ := t.Start(fd, currentConfig.General.Tun.Device, currentConfig.General.Tun.Stack, address, dns)
-		if tunListener != nil {
-			log.Infoln("TUN address: %v", tunListener.Address())
-			tunHandler.listener = tunListener
-		} else {
-			removeTunHook()
-		}
+		tunHandler.start(fd, address, dns)
 	}
-}
-
-func initTunHook() {
-	dialer.DefaultSocketHook = func(network, address string, conn syscall.RawConn) error {
-		if platform.ShouldBlockConnection() {
-			return errBlocked
-		}
-		return conn.Control(func(fd uintptr) {
-			tunHandler.handleProtect(int(fd))
-		})
-	}
-	process.DefaultPackageNameResolver = func(metadata *constant.Metadata) (string, error) {
-		src, dst := metadata.RawSrcAddr, metadata.RawDstAddr
-		if src == nil || dst == nil {
-			return "", process.ErrInvalidNetwork
-		}
-		return tunHandler.handleResolveProcess(src, dst), nil
-	}
-}
-
-func removeTunHook() {
-	dialer.DefaultSocketHook = nil
-	process.DefaultPackageNameResolver = nil
 }
 
 func handleUpdateDns(value string) {

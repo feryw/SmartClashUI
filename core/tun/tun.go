@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-func Start(fd int, device string, stack constant.TUNStack, address, dns string) (*sing_tun.Listener, error) {
+func Start(fd int, device string, stack constant.TUNStack, address, dns string) *sing_tun.Listener {
 	var prefix4 []netip.Prefix
 	var prefix6 []netip.Prefix
 	for _, a := range strings.Split(address, ",") {
@@ -25,7 +25,7 @@ func Start(fd int, device string, stack constant.TUNStack, address, dns string) 
 		prefix, err := netip.ParsePrefix(a)
 		if err != nil {
 			log.Errorln("TUN:", err)
-			return nil, err
+			return nil
 		}
 		if prefix.Addr().Is4() {
 			prefix4 = append(prefix4, prefix)
@@ -60,8 +60,8 @@ func Start(fd int, device string, stack constant.TUNStack, address, dns string) 
 
 	if err != nil {
 		log.Errorln("TUN:", err)
-		return nil, err
+		return nil
 	}
 
-	return listener, nil
+	return listener
 }

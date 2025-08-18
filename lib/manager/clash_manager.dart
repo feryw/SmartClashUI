@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:fl_clash/clash/clash.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
@@ -50,6 +48,7 @@ class _ClashContainerState extends ConsumerState<ClashManager>
       appSettingProvider.select((state) => state.openLogs),
       (prev, next) {
         if (next) {
+          print("startLog===>");
           clashCore.startLog();
         } else {
           clashCore.stopLog();
@@ -67,8 +66,8 @@ class _ClashContainerState extends ConsumerState<ClashManager>
   }
 
   @override
-  void onServiceMessage(String message) {
-    clashMessage.controller.add(json.decode(message));
+  void onServiceMessage(Map<String, Object?> message) {
+    clashMessage.controller.add(message);
     super.onServiceMessage(message);
   }
 

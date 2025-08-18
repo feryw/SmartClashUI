@@ -30,7 +30,6 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler,
     }
 
     override fun onDetachedFromEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        Service.unbind()
         flutterMethodChannel.setMethodCallHandler(null)
     }
 

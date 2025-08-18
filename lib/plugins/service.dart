@@ -10,7 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 abstract mixin class ServiceListener {
-  void onServiceMessage(String message) {}
+  void onServiceMessage(Map<String, Object?> data) {}
 }
 
 class Service {
@@ -33,12 +33,15 @@ class Service {
         case 'getVpnOptions':
           return handleGetVpnOptions();
         case 'message':
-          final message = call.arguments as String? ?? '';
-          if (message.isNotEmpty) {
+          final data = call.arguments as String? ?? '';
+          final result = ActionResult.fromJson(
+            json.decode(data),
+          );
+          if (result.data.isEmpty) {
             break;
           }
           for (final listener in _listeners) {
-            listener.onServiceMessage(message);
+            listener.onServiceMessage(result.data);
           }
           break;
         default:
