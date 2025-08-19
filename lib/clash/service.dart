@@ -31,15 +31,15 @@ class ClashService extends ClashHandlerInterface {
 
   Future<void> handleResult(ActionResult result) async {
     final completer = callbackCompleterMap[result.id];
-    final data = parasResult(result);
+    final data = await parasResult(result);
     if (result.id?.isEmpty == true) {
       clashMessage.controller.add(result.data);
     }
     completer?.complete(data);
   }
 
-  Future<void> _initServer() async {
-    await runZonedGuarded(() async {
+  void _initServer() {
+    runZonedGuarded(() async {
       final address = !system.isWindows
           ? InternetAddress(
               unixSocketPath,
@@ -79,11 +79,9 @@ class ClashService extends ClashHandlerInterface {
         globalState.showNotifier(error.toString());
       }
     });
-    await start();
   }
 
   Future<void> start() async {
-    socketCompleter = Completer();
     if (process != null) {
       await shutdown();
     }
@@ -156,6 +154,7 @@ class ClashService extends ClashHandlerInterface {
   @override
   Future<bool> preload() async {
     await serverCompleter.future;
+    await start();
     return true;
   }
 

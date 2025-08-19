@@ -554,7 +554,9 @@ class AppController {
   Future<void> init() async {
     FlutterError.onError = (details) {
       if (kDebugMode) {
-        commonPrint.log(details.stack.toString());
+        commonPrint.log(
+          'exception: ${details.exception} stack: ${details.stack}',
+        );
       }
     };
     updateTray(true);

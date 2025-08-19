@@ -48,7 +48,6 @@ class _ClashContainerState extends ConsumerState<ClashManager>
       appSettingProvider.select((state) => state.openLogs),
       (prev, next) {
         if (next) {
-          print("startLog===>");
           clashCore.startLog();
         } else {
           clashCore.stopLog();

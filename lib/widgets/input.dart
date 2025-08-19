@@ -33,29 +33,35 @@ class OptionsDialog<T> extends StatelessWidget {
         horizontal: 8,
         vertical: 16,
       ),
-      child: Wrap(
-        children: [
-          for (final option in options)
-            Builder(
-              builder: (context) {
-                if (value == option) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    Scrollable.ensureVisible(context);
-                  });
-                }
-                return ListItem.radio(
-                  delegate: RadioDelegate(
-                    value: option,
-                    groupValue: value,
-                    onChanged: (T? value) {
-                      Navigator.of(context).pop(value);
-                    },
-                  ),
-                  title: Text(textBuilder(option)),
-                );
-              },
-            ),
-        ],
+      child: RadioGroup(
+        onChanged: (value) {
+          if (value == null) return;
+          Navigator.of(context).pop(value);
+        },
+        groupValue: value,
+        child: Wrap(
+          children: [
+            for (final option in options)
+              Builder(
+                builder: (context) {
+                  if (value == option) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      Scrollable.ensureVisible(context);
+                    });
+                  }
+                  return ListItem.radio(
+                    delegate: RadioDelegate(
+                      value: option,
+                      onTab: () {
+                        Navigator.of(context).pop(option);
+                      },
+                    ),
+                    title: Text(textBuilder(option)),
+                  );
+                },
+              ),
+          ],
+        ),
       ),
     );
   }

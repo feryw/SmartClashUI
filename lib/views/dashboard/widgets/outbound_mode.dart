@@ -23,21 +23,30 @@ class OutboundMode extends StatelessWidget {
             ),
           );
           return Theme(
-              data: Theme.of(context).copyWith(
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  hoverColor: Colors.transparent),
-              child: CommonCard(
-                onPressed: () {},
-                info: Info(
-                  label: appLocalizations.outboundMode,
-                  iconData: Icons.call_split_sharp,
+            data: Theme.of(context).copyWith(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+            ),
+            child: CommonCard(
+              onPressed: () {},
+              info: Info(
+                label: appLocalizations.outboundMode,
+                iconData: Icons.call_split_sharp,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  top: 12,
+                  bottom: 16,
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    top: 12,
-                    bottom: 16,
-                  ),
+                child: RadioGroup<Mode>(
+                  groupValue: mode,
+                  onChanged: (value) {
+                    if (value == null) {
+                      return;
+                    }
+                    globalState.appController.changeMode(value);
+                  },
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,14 +63,10 @@ class OutboundMode extends StatelessWidget {
                               right: 16.ap,
                             ),
                             delegate: RadioDelegate(
-                              value: item,
-                              groupValue: mode,
-                              onChanged: (value) async {
-                                if (value == null) {
-                                  return;
-                                }
-                                globalState.appController.changeMode(value);
+                              onTab: () {
+                                globalState.appController.changeMode(item);
                               },
+                              value: item,
                             ),
                             title: Text(
                               Intl.message(item.name),
@@ -75,7 +80,9 @@ class OutboundMode extends StatelessWidget {
                     ],
                   ),
                 ),
-              ));
+              ),
+            ),
+          );
         },
       ),
     );

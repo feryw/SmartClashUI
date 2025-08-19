@@ -17,27 +17,27 @@ mixin ClashInterface {
 
   Future<bool> forceGc();
 
-  FutureOr<String> validateConfig(String data);
+  Future<String> validateConfig(String data);
 
-  FutureOr<Result> getConfig(String path);
+  Future<Result> getConfig(String path);
 
   Future<String> asyncTestDelay(String url, String proxyName);
 
-  FutureOr<String> updateConfig(UpdateParams updateParams);
+  Future<String> updateConfig(UpdateParams updateParams);
 
-  FutureOr<String> setupConfig(SetupParams setupParams);
+  Future<String> setupConfig(SetupParams setupParams);
 
-  FutureOr<Map> getProxies();
+  Future<Map> getProxies();
 
-  FutureOr<String> changeProxy(ChangeProxyParams changeProxyParams);
+  Future<String> changeProxy(ChangeProxyParams changeProxyParams);
 
   Future<bool> startListener();
 
   Future<bool> stopListener();
 
-  FutureOr<String> getExternalProviders();
+  Future<String> getExternalProviders();
 
-  FutureOr<String>? getExternalProvider(String externalProviderName);
+  Future<String>? getExternalProvider(String externalProviderName);
 
   Future<String> updateGeoData(UpdateGeoDataParams params);
 
@@ -169,10 +169,10 @@ abstract class ClashHandlerInterface with ClashInterface {
 
   @override
   Future<Map> getProxies() async {
-    return await invoke<Map>(
-          method: ActionMethod.getProxies,
-        ) ??
-        {};
+    var map = await invoke<Map>(
+      method: ActionMethod.getProxies,
+    );
+    return map ?? {};
   }
 
   @override
