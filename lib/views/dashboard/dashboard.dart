@@ -34,7 +34,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   Widget _buildIsEdit(_IsEditWidgetBuilder builder) {
     return ValueListenableBuilder(
       valueListenable: _isEditNotifier,
-      builder: (_, isEdit, ___) {
+      builder: (_, isEdit, _) {
         return builder(isEdit);
       },
     );
@@ -56,20 +56,14 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                   onPressed: () {
                     _showAddWidgetsModal();
                   },
-                  icon: Icon(
-                    Icons.add_circle,
-                  ),
+                  icon: Icon(Icons.add_circle),
                 ),
               )
             : SizedBox();
       }),
       IconButton(
         icon: _buildIsEdit((isEdit) {
-          return isEdit
-              ? Icon(Icons.save)
-              : Icon(
-                  Icons.edit,
-                );
+          return isEdit ? Icon(Icons.save) : Icon(Icons.edit);
         }),
         onPressed: _handleUpdateIsEdit,
       ),
@@ -81,7 +75,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
       builder: (_, type) {
         return ValueListenableBuilder(
           valueListenable: _addedWidgetsNotifier,
-          builder: (_, value, __) {
+          builder: (_, value, _) {
             return AdaptiveSheetScaffold(
               type: type,
               body: _AddDashboardWidgetModal(
@@ -113,11 +107,11 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final dashboardWidgets = children
-          .map(
-            (item) => DashboardWidget.getDashboardWidget(item),
-          )
+          .map((item) => DashboardWidget.getDashboardWidget(item))
           .toList();
-      ref.read(appSettingProvider.notifier).updateState(
+      ref
+          .read(appSettingProvider.notifier)
+          .updateState(
             (state) => state.copyWith(dashboardWidgets: dashboardWidgets),
           );
     });
@@ -131,22 +125,16 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     final children = [
       ...dashboardState.dashboardWidgets
           .where(
-            (item) => item.platforms.contains(
-              SupportPlatform.currentPlatform,
-            ),
+            (item) => item.platforms.contains(SupportPlatform.currentPlatform),
           )
-          .map(
-            (item) => item.widget,
-          ),
+          .map((item) => item.widget),
     ];
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _addedWidgetsNotifier.value = DashboardWidget.values
           .where(
             (item) =>
                 !children.contains(item.widget) &&
-                item.platforms.contains(
-                  SupportPlatform.currentPlatform,
-                ),
+                item.platforms.contains(SupportPlatform.currentPlatform),
           )
           .map((item) => item.widget)
           .toList();
@@ -158,46 +146,43 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
       body: Align(
         alignment: Alignment.topCenter,
         child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16).copyWith(
-              bottom: 88,
-            ),
-            child: _buildIsEdit((isEdit) {
-              return isEdit
-                  ? SystemBackBlock(
-                      child: CommonPopScope(
-                        child: SuperGrid(
-                          key: key,
-                          crossAxisCount: columns,
-                          crossAxisSpacing: spacing,
-                          mainAxisSpacing: spacing,
-                          children: [
-                            ...dashboardState.dashboardWidgets
-                                .where(
-                                  (item) => item.platforms.contains(
-                                    SupportPlatform.currentPlatform,
-                                  ),
-                                )
-                                .map(
-                                  (item) => item.widget,
+          padding: const EdgeInsets.all(16).copyWith(bottom: 88),
+          child: _buildIsEdit((isEdit) {
+            return isEdit
+                ? SystemBackBlock(
+                    child: CommonPopScope(
+                      child: SuperGrid(
+                        key: key,
+                        crossAxisCount: columns,
+                        crossAxisSpacing: spacing,
+                        mainAxisSpacing: spacing,
+                        children: [
+                          ...dashboardState.dashboardWidgets
+                              .where(
+                                (item) => item.platforms.contains(
+                                  SupportPlatform.currentPlatform,
                                 ),
-                          ],
-                          onUpdate: () {
-                            _handleSave();
-                          },
-                        ),
-                        onPop: () {
-                          _handleUpdateIsEdit();
-                          return false;
+                              )
+                              .map((item) => item.widget),
+                        ],
+                        onUpdate: () {
+                          _handleSave();
                         },
                       ),
-                    )
-                  : Grid(
-                      crossAxisCount: columns,
-                      crossAxisSpacing: spacing,
-                      mainAxisSpacing: spacing,
-                      children: children,
-                    );
-            })),
+                      onPop: () {
+                        _handleUpdateIsEdit();
+                        return false;
+                      },
+                    ),
+                  )
+                : Grid(
+                    crossAxisCount: columns,
+                    crossAxisSpacing: spacing,
+                    mainAxisSpacing: spacing,
+                    children: children,
+                  );
+          }),
+        ),
       ),
     );
   }
@@ -207,18 +192,13 @@ class _AddDashboardWidgetModal extends StatelessWidget {
   final List<GridItem> items;
   final Function(GridItem item) onAdd;
 
-  const _AddDashboardWidgetModal({
-    required this.items,
-    required this.onAdd,
-  });
+  const _AddDashboardWidgetModal({required this.items, required this.onAdd});
 
   @override
   Widget build(BuildContext context) {
     return DeferredPointerHandler(
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(
-          16,
-        ),
+        padding: EdgeInsets.all(16),
         child: Grid(
           crossAxisCount: 8,
           crossAxisSpacing: 16,
@@ -247,10 +227,7 @@ class _AddedContainer extends StatefulWidget {
   final Widget child;
   final VoidCallback onAdd;
 
-  const _AddedContainer({
-    required this.child,
-    required this.onAdd,
-  });
+  const _AddedContainer({required this.child, required this.onAdd});
 
   @override
   State<_AddedContainer> createState() => _AddedContainerState();
@@ -282,9 +259,7 @@ class _AddedContainerState extends State<_AddedContainer> {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        ActivateBox(
-          child: widget.child,
-        ),
+        ActivateBox(child: widget.child),
         Positioned(
           top: -8,
           right: -8,
@@ -296,13 +271,11 @@ class _AddedContainerState extends State<_AddedContainer> {
                 iconSize: 20,
                 padding: EdgeInsets.all(2),
                 onPressed: _handleAdd,
-                icon: Icon(
-                  Icons.add,
-                ),
+                icon: Icon(Icons.add),
               ),
             ),
           ),
-        )
+        ),
       ],
     );
   }

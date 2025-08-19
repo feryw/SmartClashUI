@@ -43,8 +43,9 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView> {
   }
 
   void _onKeywordsUpdate(List<String> keywords) {
-    _connectionsStateNotifier.value =
-        _connectionsStateNotifier.value.copyWith(keywords: keywords);
+    _connectionsStateNotifier.value = _connectionsStateNotifier.value.copyWith(
+      keywords: keywords,
+    );
   }
 
   Future<void> _updateConnectionsTask() async {
@@ -93,7 +94,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView> {
       actions: _buildActions(),
       body: ValueListenableBuilder<TrackerInfosState>(
         valueListenable: _connectionsStateNotifier,
-        builder: (context, state, __) {
+        builder: (context, state, _) {
           final connections = state.list;
           if (connections.isEmpty) {
             return NullStatus(
@@ -124,11 +125,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView> {
                   ),
                 ),
               )
-              .separated(
-                const Divider(
-                  height: 0,
-                ),
-              )
+              .separated(const Divider(height: 0))
               .toList();
           return ListView.builder(
             controller: _scrollController,

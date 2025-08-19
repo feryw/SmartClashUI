@@ -22,7 +22,6 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler,
     private lateinit var flutterMethodChannel: MethodChannel
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        Service.bind()
         flutterMethodChannel = MethodChannel(
             flutterPluginBinding.binaryMessenger, "${Components.PACKAGE_NAME}/service"
         )
@@ -111,6 +110,7 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler,
 
     fun handleInit(result: MethodChannel.Result) {
         launch {
+            Service.bind()
             Service.setMessageCallback {
                 GlobalState.launch(Dispatchers.Main) {
                     handleSendMessage(it)

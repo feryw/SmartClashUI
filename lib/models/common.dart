@@ -9,7 +9,7 @@ part 'generated/common.freezed.dart';
 part 'generated/common.g.dart';
 
 @freezed
-class NavigationItem with _$NavigationItem {
+abstract class NavigationItem with _$NavigationItem {
   const factory NavigationItem({
     required Icon icon,
     required PageLabel label,
@@ -23,7 +23,7 @@ class NavigationItem with _$NavigationItem {
 }
 
 @freezed
-class Package with _$Package {
+abstract class Package with _$Package {
   const factory Package({
     required String packageName,
     required String label,
@@ -37,7 +37,7 @@ class Package with _$Package {
 }
 
 @freezed
-class Metadata with _$Metadata {
+abstract class Metadata with _$Metadata {
   const factory Metadata({
     @Default(0) int uid,
     @Default('') String network,
@@ -63,7 +63,7 @@ class Metadata with _$Metadata {
 }
 
 @freezed
-class TrackerInfo with _$TrackerInfo {
+abstract class TrackerInfo with _$TrackerInfo {
   const factory TrackerInfo({
     required String id,
     @Default(0) int upload,
@@ -112,7 +112,7 @@ String _logDateTime(dynamic _) {
 // }
 
 @freezed
-class Log with _$Log {
+abstract class Log with _$Log {
   const factory Log({
     // @JsonKey(fromJson: _logId) required String id,
     @JsonKey(name: 'LogLevel') @Default(LogLevel.info) LogLevel logLevel,
@@ -134,7 +134,7 @@ class Log with _$Log {
 }
 
 @freezed
-class LogsState with _$LogsState {
+abstract class LogsState with _$LogsState {
   const factory LogsState({
     @Default([]) List<Log> logs,
     @Default([]) List<String> keywords,
@@ -158,7 +158,7 @@ extension LogsStateExt on LogsState {
 }
 
 @freezed
-class TrackerInfosState with _$TrackerInfosState {
+abstract class TrackerInfosState with _$TrackerInfosState {
   const factory TrackerInfosState({
     @Default([]) List<TrackerInfo> trackerInfos,
     @Default([]) List<String> keywords,
@@ -193,7 +193,7 @@ extension TrackerInfosStateExt on TrackerInfosState {
 const defaultDavFileName = 'backup.zip';
 
 @freezed
-class DAV with _$DAV {
+abstract class DAV with _$DAV {
   const factory DAV({
     required String uri,
     required String user,
@@ -205,7 +205,7 @@ class DAV with _$DAV {
 }
 
 @freezed
-class FileInfo with _$FileInfo {
+abstract class FileInfo with _$FileInfo {
   const factory FileInfo({
     required int size,
     required DateTime lastModified,
@@ -218,7 +218,7 @@ extension FileInfoExt on FileInfo {
 }
 
 @freezed
-class VersionInfo with _$VersionInfo {
+abstract class VersionInfo with _$VersionInfo {
   const factory VersionInfo({
     @Default('') String clashName,
     @Default('') String version,
@@ -229,7 +229,7 @@ class VersionInfo with _$VersionInfo {
 }
 
 @freezed
-class Traffic with _$Traffic {
+abstract class Traffic with _$Traffic {
   const factory Traffic({
     @Default(0) num up,
     @Default(0) num down,
@@ -252,7 +252,7 @@ extension TrafficExt on Traffic {
 }
 
 @freezed
-class TrafficShow with _$TrafficShow {
+abstract class TrafficShow with _$TrafficShow {
   const factory TrafficShow({
     required String value,
     required String unit,
@@ -264,7 +264,7 @@ extension TrafficShowExt on TrafficShow {
 }
 
 @freezed
-class Proxy with _$Proxy {
+abstract class Proxy with _$Proxy {
   const factory Proxy({
     required String name,
     required String type,
@@ -275,7 +275,7 @@ class Proxy with _$Proxy {
 }
 
 @freezed
-class Group with _$Group {
+abstract class Group with _$Group {
   const factory Group({
     required GroupType type,
     @Default([]) List<Proxy> all,
@@ -308,7 +308,7 @@ extension GroupExt on Group {
 }
 
 @freezed
-class ColorSchemes with _$ColorSchemes {
+abstract class ColorSchemes with _$ColorSchemes {
   const factory ColorSchemes({
     ColorScheme? lightColorScheme,
     ColorScheme? darkColorScheme,
@@ -345,14 +345,12 @@ extension ColorSchemesExt on ColorSchemes {
   }
 }
 
-class IpInfo {
-  final String ip;
-  final String countryCode;
-
-  const IpInfo({
-    required this.ip,
-    required this.countryCode,
-  });
+@freezed
+abstract class IpInfo with _$IpInfo {
+  const factory IpInfo({
+    required String ip,
+    required String countryCode,
+  }) = _IpInfo;
 
   static IpInfo fromIpInfoIoJson(Map<String, dynamic> json) {
     return switch (json) {
@@ -409,15 +407,10 @@ class IpInfo {
       _ => throw const FormatException('invalid json'),
     };
   }
-
-  @override
-  String toString() {
-    return 'IpInfo{ip: $ip, countryCode: $countryCode}';
-  }
 }
 
 @freezed
-class HotKeyAction with _$HotKeyAction {
+abstract class HotKeyAction with _$HotKeyAction {
   const factory HotKeyAction({
     required HotAction action,
     int? key,
@@ -431,7 +424,7 @@ class HotKeyAction with _$HotKeyAction {
 typedef Validator = String? Function(String? value);
 
 @freezed
-class Field with _$Field {
+abstract class Field with _$Field {
   const factory Field({
     required String label,
     required String value,
@@ -457,17 +450,15 @@ class PopupMenuItemData {
 }
 
 @freezed
-class TextPainterParams with _$TextPainterParams {
-  const factory TextPainterParams({
-    required String? text,
-    required double? fontSize,
-    required double textScaleFactor,
-    @Default(double.infinity) double maxWidth,
-    int? maxLines,
-  }) = _TextPainterParams;
+abstract class AndroidState with _$AndroidState {
+  const factory AndroidState({
+    required String currentProfileName,
+    required String stopText,
+    required bool onlyStatisticsProxy,
+  }) = _AndroidState;
 
-  factory TextPainterParams.fromJson(Map<String, Object?> json) =>
-      _$TextPainterParamsFromJson(json);
+  factory AndroidState.fromJson(Map<String, Object?> json) =>
+      _$AndroidStateFromJson(json);
 }
 
 class CloseWindowIntent extends Intent {
@@ -475,7 +466,7 @@ class CloseWindowIntent extends Intent {
 }
 
 @freezed
-class Result<T> with _$Result<T> {
+abstract class Result<T> with _$Result<T> {
   const factory Result({
     required T? data,
     required ResultType type,
@@ -502,7 +493,7 @@ extension ResultExt on Result {
 }
 
 @freezed
-class Script with _$Script {
+abstract class Script with _$Script {
   const factory Script({
     required String id,
     required String label,

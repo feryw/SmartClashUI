@@ -9,10 +9,7 @@ import 'package:flutter/material.dart';
 class MessageManager extends StatefulWidget {
   final Widget child;
 
-  const MessageManager({
-    super.key,
-    required this.child,
-  });
+  const MessageManager({super.key, required this.child});
 
   @override
   State<MessageManager> createState() => MessageManagerState();
@@ -35,10 +32,7 @@ class MessageManagerState extends State<MessageManager> {
   }
 
   Future<void> message(String text) async {
-    final commonMessage = CommonMessage(
-      id: utils.uuidV4,
-      text: text,
-    );
+    final commonMessage = CommonMessage(id: utils.uuidV4, text: text);
     commonPrint.log(text);
     _bufferMessages.add(commonMessage);
     await _showMessage();
@@ -52,9 +46,7 @@ class MessageManagerState extends State<MessageManager> {
     while (_bufferMessages.isNotEmpty) {
       final commonMessage = _bufferMessages.removeAt(0);
       _messagesNotifier.value = List.from(_messagesNotifier.value)
-        ..add(
-          commonMessage,
-        );
+        ..add(commonMessage);
       await Future.delayed(Duration(seconds: 1));
       Future.delayed(commonMessage.duration, () {
         _handleRemove(commonMessage);
@@ -77,7 +69,7 @@ class MessageManagerState extends State<MessageManager> {
         widget.child,
         ValueListenableBuilder(
           valueListenable: _messagesNotifier,
-          builder: (_, messages, __) {
+          builder: (_, messages, _) {
             return FadeThroughBox(
               margin: EdgeInsets.only(
                 top: kToolbarHeight + 8,
@@ -99,17 +91,12 @@ class MessageManagerState extends State<MessageManager> {
                           elevation: 10,
                           color: context.colorScheme.surfaceContainerHigh,
                           child: Container(
-                            width: min(
-                              constraints.maxWidth,
-                              500,
-                            ),
+                            width: min(constraints.maxWidth, 500),
                             padding: EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 16,
                             ),
-                            child: Text(
-                              messages.last.text,
-                            ),
+                            child: Text(messages.last.text),
                           ),
                         );
                       },

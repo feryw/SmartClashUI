@@ -46,17 +46,12 @@ class _MemoryInfoState extends State<MemoryInfo> {
     return SizedBox(
       height: getWidgetHeight(1),
       child: CommonCard(
-        info: Info(
-          iconData: Icons.memory,
-          label: appLocalizations.memoryInfo,
-        ),
+        info: Info(iconData: Icons.memory, label: appLocalizations.memoryInfo),
         onPressed: () {
           clashCore.requestGc();
         },
         child: Container(
-          padding: baseInfoEdgeInsets.copyWith(
-            top: 0,
-          ),
+          padding: baseInfoEdgeInsets.copyWith(top: 0),
           child: Column(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.end,
@@ -66,7 +61,7 @@ class _MemoryInfoState extends State<MemoryInfo> {
                 height: globalState.measure.bodyMediumHeight + 2,
                 child: ValueListenableBuilder(
                   valueListenable: _memoryStateNotifier,
-                  builder: (_, memory, __) {
+                  builder: (_, memory, _) {
                     final traffic = memory.traffic;
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -76,19 +71,17 @@ class _MemoryInfoState extends State<MemoryInfo> {
                           style: context.textTheme.bodyMedium?.toLight
                               .adjustSize(1),
                         ),
-                        SizedBox(
-                          width: 8,
-                        ),
+                        SizedBox(width: 8),
                         Text(
                           traffic.unit,
                           style: context.textTheme.bodyMedium?.toLight
                               .adjustSize(1),
-                        )
+                        ),
                       ],
                     );
                   },
                 ),
-              )
+              ),
             ],
           ),
         ),

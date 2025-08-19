@@ -26,9 +26,7 @@ class Navigation {
         label: PageLabel.proxies,
         builder: (_) => ProviderScope(
           overrides: [
-            queryProvider.overrideWith(
-              () => Query(),
-            ),
+            queryProvider.overrideWith(() => Query()),
           ],
           child: const ProxiesView(
             key: GlobalObjectKey(
