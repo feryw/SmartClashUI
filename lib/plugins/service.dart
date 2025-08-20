@@ -4,6 +4,7 @@ import 'dart:isolate';
 
 import 'package:fl_clash/common/constant.dart';
 import 'package:fl_clash/common/system.dart';
+import 'package:fl_clash/models/common.dart';
 import 'package:fl_clash/models/core.dart';
 import 'package:fl_clash/state.dart';
 import 'package:flutter/foundation.dart';
@@ -34,9 +35,7 @@ class Service {
           return handleGetVpnOptions();
         case 'message':
           final data = call.arguments as String? ?? '';
-          final result = ActionResult.fromJson(
-            json.decode(data),
-          );
+          final result = ActionResult.fromJson(json.decode(data));
           if (result.data.isEmpty) {
             break;
           }
@@ -71,6 +70,14 @@ class Service {
 
   Future<bool> stop() async {
     return await methodChannel.invokeMethod<bool>('stop') ?? false;
+  }
+
+  Future<bool> syncAndroidState(AndroidState state) async {
+    return await methodChannel.invokeMethod<bool>(
+          'syncState',
+          json.encode(state),
+        ) ??
+        false;
   }
 
   Future<bool> init() async {

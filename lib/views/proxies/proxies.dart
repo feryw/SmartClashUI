@@ -9,17 +9,10 @@ import 'package:fl_clash/views/proxies/providers.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod_annotation/experimental/scope.dart';
 
 import 'setting.dart';
 import 'tab.dart';
 
-@Dependencies([
-  Query,
-  proxiesListState,
-  proxiesTabState,
-  proxiesTabControllerState,
-])
 class ProxiesView extends ConsumerStatefulWidget {
   const ProxiesView({super.key});
 
@@ -116,7 +109,7 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
   }
 
   void _onSearch(String value) {
-    ref.read(queryProvider.notifier).value = value;
+    ref.read(queryMapProvider.notifier).updateQuery(QueryTag.proxies, value);
   }
 
   @override

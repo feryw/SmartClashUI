@@ -81,17 +81,16 @@ class GlobalState {
   Future<void> _initDynamicColor() async {
     try {
       corePalette = await DynamicColorPlugin.getCorePalette();
-      accentColor = await DynamicColorPlugin.getAccentColor() ??
+      accentColor =
+          await DynamicColorPlugin.getAccentColor() ??
           Color(defaultPrimaryColor);
     } catch (_) {}
   }
 
   Future<void> init() async {
     packageInfo = await PackageInfo.fromPlatform();
-    config = await preferences.getConfig() ??
-        Config(
-          themeProps: defaultThemeProps,
-        );
+    config =
+        await preferences.getConfig() ?? Config(themeProps: defaultThemeProps);
     await globalState.migrateOldData(config);
     await AppLocalizations.load(
       utils.getLocaleForString(config.appSetting.locale) ??
@@ -170,7 +169,7 @@ class GlobalState {
                   Navigator.of(context).pop(true);
                 },
                 child: Text(confirmText ?? appLocalizations.confirm),
-              )
+              ),
             ],
             child: Container(
               width: 300,
@@ -181,9 +180,7 @@ class GlobalState {
                     style: Theme.of(context).textTheme.labelLarge,
                     children: [message],
                   ),
-                  style: const TextStyle(
-                    overflow: TextOverflow.visible,
-                  ),
+                  style: const TextStyle(overflow: TextOverflow.visible),
                 ),
               ),
             ),
@@ -246,26 +243,28 @@ class GlobalState {
   Future<void> migrateOldData(Config config) async {
     final clashConfig = await preferences.getClashConfig();
     if (clashConfig != null) {
-      config = config.copyWith(
-        patchClashConfig: clashConfig,
-      );
+      config = config.copyWith(patchClashConfig: clashConfig);
       preferences.clearClashConfig();
       preferences.saveConfig(config);
     }
   }
 
-  Future<SetupParams> getSetupParams({
-    required ClashConfig pathConfig,
-  }) async {
-    final clashConfig = await patchRawConfig(
-      patchConfig: pathConfig,
-    );
+  Future<SetupParams> getSetupParams({required ClashConfig pathConfig}) async {
+    final clashConfig = await patchRawConfig(patchConfig: pathConfig);
     final params = SetupParams(
       config: clashConfig,
       selectedMap: config.currentProfile?.selectedMap ?? {},
       testUrl: config.appSetting.testUrl,
     );
     return params;
+  }
+
+  AndroidState getAndroidState() {
+    return AndroidState(
+      currentProfileName: config.currentProfile?.label ?? '',
+      onlyStatisticsProxy: config.appSetting.onlyStatisticsProxy,
+      stopText: appLocalizations.stop,
+    );
   }
 
   Future<Map<String, dynamic>> patchRawConfig({
@@ -372,7 +371,8 @@ class GlobalState {
     if (overrideDns || !isEnableDns) {
       final dns = switch (!isEnableDns) {
         true => realPatchConfig.dns.copyWith(
-            nameserver: [...realPatchConfig.dns.nameserver, 'system://']),
+          nameserver: [...realPatchConfig.dns.nameserver, 'system://'],
+        ),
         false => realPatchConfig.dns,
       };
       rawConfig['dns'] = dns.toJson();
@@ -443,10 +443,7 @@ class DetectionState {
   CancelToken? cancelToken;
 
   final state = ValueNotifier<NetworkDetectionState>(
-    const NetworkDetectionState(
-      isLoading: true,
-      ipInfo: null,
-    ),
+    const NetworkDetectionState(isLoading: true, ipInfo: null),
   );
 
   DetectionState._internal();
@@ -460,9 +457,7 @@ class DetectionState {
     debouncer.call(
       FunctionTag.checkIp,
       _checkIp,
-      duration: Duration(
-        milliseconds: 1200,
-      ),
+      duration: Duration(milliseconds: 1200),
     );
   }
 
@@ -483,10 +478,7 @@ class DetectionState {
       return;
     }
     _clearSetTimeoutTimer();
-    state.value = state.value.copyWith(
-      isLoading: true,
-      ipInfo: null,
-    );
+    state.value = state.value.copyWith(isLoading: true, ipInfo: null);
     _preIsStart = isStart;
     if (cancelToken != null) {
       cancelToken!.cancel();
@@ -495,26 +487,17 @@ class DetectionState {
     cancelToken = CancelToken();
     final res = await request.checkIp(cancelToken: cancelToken);
     if (res.isError) {
-      state.value = state.value.copyWith(
-        isLoading: true,
-        ipInfo: null,
-      );
+      state.value = state.value.copyWith(isLoading: true, ipInfo: null);
       return;
     }
     final ipInfo = res.data;
     if (ipInfo != null) {
-      state.value = state.value.copyWith(
-        isLoading: false,
-        ipInfo: ipInfo,
-      );
+      state.value = state.value.copyWith(isLoading: false, ipInfo: ipInfo);
       return;
     }
     _clearSetTimeoutTimer();
     _setTimeoutTimer = Timer(const Duration(milliseconds: 300), () {
-      state.value = state.value.copyWith(
-        isLoading: false,
-        ipInfo: null,
-      );
+      state.value = state.value.copyWith(isLoading: false, ipInfo: null);
     });
   }
 

@@ -1329,5 +1329,58 @@ abstract class _$ProfileOverrideState extends $Notifier<ProfileOverrideModel?> {
   }
 }
 
+@ProviderFor(QueryMap)
+const queryMapProvider = QueryMapProvider._();
+
+final class QueryMapProvider
+    extends $NotifierProvider<QueryMap, Map<QueryTag, String>> {
+  const QueryMapProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'queryMapProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$queryMapHash();
+
+  @$internal
+  @override
+  QueryMap create() => QueryMap();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Map<QueryTag, String> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Map<QueryTag, String>>(value),
+    );
+  }
+}
+
+String _$queryMapHash() => r'102d489d31d312f082d7117f80a6de8318eaaf75';
+
+abstract class _$QueryMap extends $Notifier<Map<QueryTag, String>> {
+  Map<QueryTag, String> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref = this.ref as $Ref<Map<QueryTag, String>, Map<QueryTag, String>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<Map<QueryTag, String>, Map<QueryTag, String>>,
+              Map<QueryTag, String>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

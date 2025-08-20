@@ -378,3 +378,18 @@ class ProfileOverrideState extends _$ProfileOverrideState
     state = value;
   }
 }
+
+@riverpod
+class QueryMap extends _$QueryMap with AutoDisposeNotifierMixin {
+  @override
+  Map<QueryTag, String> build() => globalState.appState.queryMap;
+
+  @override
+  onUpdate(value) {
+    globalState.appState = globalState.appState.copyWith(queryMap: value);
+  }
+
+  void updateQuery(QueryTag tag, String value) {
+    state = Map.from(globalState.appState.queryMap)..[tag] = value;
+  }
+}

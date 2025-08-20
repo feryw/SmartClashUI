@@ -17,7 +17,6 @@ import 'common.dart';
 typedef ProxyGroupViewKeyMap =
     Map<String, GlobalObjectKey<_ProxyGroupViewState>>;
 
-@Dependencies([proxiesTabState, proxiesTabControllerState])
 class ProxiesTabView extends ConsumerStatefulWidget {
   const ProxiesTabView({super.key});
 
@@ -287,7 +286,7 @@ class _ProxyGroupViewState extends ConsumerState<ProxyGroupView> {
   PageStorageKey _getPageStorageKey() {
     final profile = globalState.config.currentProfile;
     final key =
-        '${profile?.id}_${ScrollPositionCacheKeys.proxiesTabList.name}_${widget.group.name}';
+        '${profile?.id}_${ScrollPositionCacheKey.proxiesTabList.name}_${widget.group.name}';
     return ProxiesTabView.pageListStoreMap.updateCacheValue(
       key,
       () => PageStorageKey(key),

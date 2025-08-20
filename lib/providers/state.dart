@@ -263,9 +263,9 @@ GroupsState filterGroupsState(Ref ref, String query) {
   return GroupsState(value: groups);
 }
 
-@Riverpod(dependencies: [Query])
+@riverpod
 ProxiesListState proxiesListState(Ref ref) {
-  final query = ref.watch(queryProvider);
+  final query = ref.watch(queryProvider(QueryTag.proxies));
   final currentGroups = ref.watch(filterGroupsStateProvider(query));
   final currentUnfoldSet = ref.watch(unfoldSetProvider);
   final vm2 = ref.watch(
@@ -286,9 +286,9 @@ ProxiesListState proxiesListState(Ref ref) {
   );
 }
 
-@Riverpod(dependencies: [Query])
+@riverpod
 ProxiesTabState proxiesTabState(Ref ref) {
-  final query = ref.watch(queryProvider);
+  final query = ref.watch(queryProvider(QueryTag.proxies));
   final currentGroups = ref.watch(filterGroupsStateProvider(query));
   final currentGroupName = ref.watch(
     currentProfileProvider.select((state) => state?.currentGroupName),
@@ -315,7 +315,7 @@ bool isStart(Ref ref) {
   return ref.watch(runTimeProvider.select((state) => state != null));
 }
 
-@Riverpod(dependencies: [proxiesTabState])
+@riverpod
 VM2<List<String>, String?> proxiesTabControllerState(Ref ref) {
   return ref.watch(
     proxiesTabStateProvider.select(
@@ -638,8 +638,25 @@ VM2<bool, bool> autoSetSystemDnsState(Ref ref) {
   return VM2(a: isStart ? realTunEnable : false, b: autoSetSystemDns);
 }
 
-@Riverpod(dependencies: [])
-class Query extends _$Query with AutoDisposeNotifierMixin {
+@riverpod
+AndroidState androidState(Ref ref) {
+  final currentProfileName = ref.watch(
+    currentProfileProvider.select((state) => state?.label ?? ''),
+  );
+  final onlyStatisticsProxy = ref.watch(
+    appSettingProvider.select((state) => state.onlyStatisticsProxy),
+  );
+  ref.watch((appSettingProvider).select((state) => state.locale));
+  return AndroidState(
+    currentProfileName: currentProfileName,
+    onlyStatisticsProxy: onlyStatisticsProxy,
+    stopText: appLocalizations.stop,
+  );
+}
+
+@riverpod
+class Query extends _$Query {
   @override
-  String build() => '';
+  String build(QueryTag id) =>
+      ref.watch(queryMapProvider.select((state) => state[id] ?? ''));
 }

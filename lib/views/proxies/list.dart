@@ -9,14 +9,12 @@ import 'package:fl_clash/state.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod_annotation/experimental/scope.dart';
 
 import 'card.dart';
 import 'common.dart';
 
 typedef GroupNameProxiesMap = Map<String, List<Proxy>>;
 
-@Dependencies([proxiesListState])
 class ProxiesListView extends StatefulWidget {
   const ProxiesListView({super.key});
 

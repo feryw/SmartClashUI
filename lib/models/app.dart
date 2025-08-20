@@ -36,6 +36,7 @@ abstract class AppState with _$AppState {
     @Default(false) bool loading,
     required SystemUiOverlayStyle systemUiOverlayStyle,
     ProfileOverrideModel? profileOverrideModel,
+    @Default({}) Map<QueryTag, String> queryMap,
   }) = _AppState;
 }
 

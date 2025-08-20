@@ -672,13 +672,9 @@ final class ProxiesListStateProvider
         retry: null,
         name: r'proxiesListStateProvider',
         isAutoDispose: true,
-        dependencies: const <ProviderOrFamily>[queryProvider],
-        $allTransitiveDependencies: const <ProviderOrFamily>[
-          ProxiesListStateProvider.$allTransitiveDependencies0,
-        ],
+        dependencies: null,
+        $allTransitiveDependencies: null,
       );
-
-  static const $allTransitiveDependencies0 = queryProvider;
 
   @override
   String debugGetCreateSourceHash() => _$proxiesListStateHash();
@@ -702,7 +698,7 @@ final class ProxiesListStateProvider
   }
 }
 
-String _$proxiesListStateHash() => r'68f712bdbed5be9f9ba7709ec7c861e1d321f8fc';
+String _$proxiesListStateHash() => r'1438dbcaf0d45fbd2cb7fdde81cf1dc06bbd992f';
 
 @ProviderFor(proxiesTabState)
 const proxiesTabStateProvider = ProxiesTabStateProvider._();
@@ -718,13 +714,9 @@ final class ProxiesTabStateProvider
         retry: null,
         name: r'proxiesTabStateProvider',
         isAutoDispose: true,
-        dependencies: const <ProviderOrFamily>[queryProvider],
-        $allTransitiveDependencies: const <ProviderOrFamily>[
-          ProxiesTabStateProvider.$allTransitiveDependencies0,
-        ],
+        dependencies: null,
+        $allTransitiveDependencies: null,
       );
-
-  static const $allTransitiveDependencies0 = queryProvider;
 
   @override
   String debugGetCreateSourceHash() => _$proxiesTabStateHash();
@@ -748,7 +740,7 @@ final class ProxiesTabStateProvider
   }
 }
 
-String _$proxiesTabStateHash() => r'4b6d355c2892208f67bc843ead7687a5816c18e3';
+String _$proxiesTabStateHash() => r'591fd8c2fa0df4c6a4832ffa04eb8d62453ba225';
 
 @ProviderFor(isStart)
 const isStartProvider = IsStartProvider._();
@@ -808,16 +800,9 @@ final class ProxiesTabControllerStateProvider
         retry: null,
         name: r'proxiesTabControllerStateProvider',
         isAutoDispose: true,
-        dependencies: const <ProviderOrFamily>[proxiesTabStateProvider],
-        $allTransitiveDependencies: const <ProviderOrFamily>[
-          ProxiesTabControllerStateProvider.$allTransitiveDependencies0,
-          ProxiesTabControllerStateProvider.$allTransitiveDependencies1,
-        ],
+        dependencies: null,
+        $allTransitiveDependencies: null,
       );
-
-  static const $allTransitiveDependencies0 = proxiesTabStateProvider;
-  static const $allTransitiveDependencies1 =
-      ProxiesTabStateProvider.$allTransitiveDependencies0;
 
   @override
   String debugGetCreateSourceHash() => _$proxiesTabControllerStateHash();
@@ -843,7 +828,7 @@ final class ProxiesTabControllerStateProvider
 }
 
 String _$proxiesTabControllerStateHash() =>
-    r'696c680f6aebe856752c31ce3d961753aaad75ca';
+    r'05dba6f9b7fe99b84234540f56ba1bf53a2a5228';
 
 @ProviderFor(proxyGroupSelectorState)
 const proxyGroupSelectorStateProvider = ProxyGroupSelectorStateFamily._();
@@ -2220,23 +2205,71 @@ final class AutoSetSystemDnsStateProvider
 String _$autoSetSystemDnsStateHash() =>
     r'2e0976e079100325b1ca797285df48a94c2c066c';
 
-@ProviderFor(Query)
-const queryProvider = QueryProvider._();
+@ProviderFor(androidState)
+const androidStateProvider = AndroidStateProvider._();
 
-final class QueryProvider extends $NotifierProvider<Query, String> {
-  const QueryProvider._()
+final class AndroidStateProvider
+    extends $FunctionalProvider<AndroidState, AndroidState, AndroidState>
+    with $Provider<AndroidState> {
+  const AndroidStateProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'queryProvider',
+        name: r'androidStateProvider',
         isAutoDispose: true,
-        dependencies: const <ProviderOrFamily>[],
-        $allTransitiveDependencies: const <ProviderOrFamily>[],
+        dependencies: null,
+        $allTransitiveDependencies: null,
       );
 
   @override
+  String debugGetCreateSourceHash() => _$androidStateHash();
+
+  @$internal
+  @override
+  $ProviderElement<AndroidState> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  AndroidState create(Ref ref) {
+    return androidState(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AndroidState value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AndroidState>(value),
+    );
+  }
+}
+
+String _$androidStateHash() => r'bdf7baeb4ed4041233f06f0aede8d4d41489ebd6';
+
+@ProviderFor(Query)
+const queryProvider = QueryFamily._();
+
+final class QueryProvider extends $NotifierProvider<Query, String> {
+  const QueryProvider._({
+    required QueryFamily super.from,
+    required QueryTag super.argument,
+  }) : super(
+         retry: null,
+         name: r'queryProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
   String debugGetCreateSourceHash() => _$queryHash();
+
+  @override
+  String toString() {
+    return r'queryProvider'
+        ''
+        '($argument)';
+  }
 
   @$internal
   @override
@@ -2249,16 +2282,46 @@ final class QueryProvider extends $NotifierProvider<Query, String> {
       providerOverride: $SyncValueProvider<String>(value),
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    return other is QueryProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
 }
 
-String _$queryHash() => r'aa03ad1bd30598857ce9b0c0e1ee191b03689fd0';
+String _$queryHash() => r'64c25c898d6d63f468d7e36fd591d390621c5624';
+
+final class QueryFamily extends $Family
+    with $ClassFamilyOverride<Query, String, String, String, QueryTag> {
+  const QueryFamily._()
+    : super(
+        retry: null,
+        name: r'queryProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  QueryProvider call(QueryTag id) => QueryProvider._(argument: id, from: this);
+
+  @override
+  String toString() => r'queryProvider';
+}
 
 abstract class _$Query extends $Notifier<String> {
-  String build();
+  late final _$args = ref.$arg as QueryTag;
+  QueryTag get id => _$args;
+
+  String build(QueryTag id);
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
+    final created = build(_$args);
     final ref = this.ref as $Ref<String, String>;
     final element =
         ref.element
