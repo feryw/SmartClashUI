@@ -17,12 +17,8 @@ Future<void> main() async {
   final version = await system.version;
   await clashCore.preload();
   await globalState.initApp(version);
-  await android?.init();
-  await window?.init(version);
   HttpOverrides.global = FlClashHttpOverrides();
-  runApp(ProviderScope(
-    child: const Application(),
-  ));
+  runApp(ProviderScope(child: const Application()));
 }
 
 @pragma('vm:entry-point')
@@ -30,10 +26,14 @@ Future<void> _service(List<String> flags) async {
   WidgetsFlutterBinding.ensureInitialized();
   await globalState.init();
   await service?.init();
-  tile?.addListener(_TileListenerWithService(onStop: () {
-    app?.tip(appLocalizations.stopVpn);
-    globalState.handleStop();
-  }));
+  tile?.addListener(
+    _TileListenerWithService(
+      onStop: () {
+        app?.tip(appLocalizations.stopVpn);
+        globalState.handleStop();
+      },
+    ),
+  );
   Future(() async {
     app?.tip(appLocalizations.startVpn);
     final version = await system.version;
@@ -41,9 +41,7 @@ Future<void> _service(List<String> flags) async {
     final clashConfig = globalState.config.patchClashConfig.copyWith.tun(
       enable: false,
     );
-    final params = await globalState.getSetupParams(
-      pathConfig: clashConfig,
-    );
+    final params = await globalState.getSetupParams(pathConfig: clashConfig);
     await clashCore.setupConfig(params);
     await globalState.handleStart();
   });
@@ -53,9 +51,8 @@ Future<void> _service(List<String> flags) async {
 class _TileListenerWithService with TileListener {
   final Function() _onStop;
 
-  const _TileListenerWithService({
-    required Function() onStop,
-  }) : _onStop = onStop;
+  const _TileListenerWithService({required Function() onStop})
+    : _onStop = onStop;
 
   @override
   void onStop() {

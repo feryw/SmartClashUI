@@ -76,6 +76,7 @@ class GlobalState {
     );
     await _initDynamicColor();
     await init();
+    await window?.init(version);
   }
 
   Future<void> _initDynamicColor() async {
@@ -96,6 +97,8 @@ class GlobalState {
       utils.getLocaleForString(config.appSetting.locale) ??
           WidgetsBinding.instance.platformDispatcher.locale,
     );
+    await service?.init();
+    await service?.syncAndroidState(globalState.getAndroidState());
   }
 
   String get ua => config.patchClashConfig.globalUa ?? packageInfo.ua;
