@@ -26,6 +26,7 @@
     <application
         android:name=".FlClashApplication"
         android:banner="@mipmap/ic_banner"
+        android:extractNativeLibs="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="FlClash">
