@@ -206,6 +206,16 @@ jobs:
             currentTag=$tag
           done
 
+      - name: Determine release tag
+        id: tag
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            echo "tag=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          else
+            # Auto-generate a snapshot tag for main
+            echo "tag=main-$(date +%Y%m%d%H%M)" >> $GITHUB_OUTPUT
+          fi
+
       # - name: Push to telegram
         # env:
           # TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -218,7 +228,7 @@ jobs:
 
       - name: Patch release.md
         run: |
-          version=$(echo "${{ github.ref_name }}" | sed 's/^v//')
+          version=$(echo "${{ steps.tag.outputs.tag }}" | sed 's/^v//')
           sed "s|VERSION|$version|g" ./.github/release_template.md >> release.md
 
       - name: Generate sha256
