@@ -1,9 +1,10 @@
 name: build
 
 on:
+ workflow_dispatch:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
 env:
   IS_STABLE: ${{ !contains(github.ref, '-') }}
 
