@@ -4,16 +4,6 @@
 
 A multi-platform proxy client based on Smart ClashMeta, simple and easy to use, open-source and ad-free.
 
-on Desktop:
-<p style="text-align: center;">
-    <img alt="desktop" src="snapshots/desktop.gif">
-</p>
-
-on Mobile:
-<p style="text-align: center;">
-    <img alt="mobile" src="snapshots/mobile.gif">
-</p>
-
 ## Features
 
 ✈️ Multi-platform: Android, Windows, macOS and Linux
