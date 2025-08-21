@@ -205,6 +205,7 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
         Toast.makeText(GlobalState.application, message, Toast.LENGTH_LONG).show()
     }
 
+    @Suppress("DEPRECATION")
     private fun updateExcludeFromRecents(value: Boolean?) {
         val am = getSystemService(GlobalState.application, ActivityManager::class.java)
         val task = am?.appTasks?.firstOrNull {
@@ -315,6 +316,8 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
         }
     }
 
+
+    @Suppress("DEPRECATION")
     private fun isChinaPackage(packageName: String): Boolean {
         val packageManager = GlobalState.application.packageManager ?: return false
         skipPrefixList.forEach {

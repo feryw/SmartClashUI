@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import androidx.annotation.RequiresApi
 import com.follow.clash.common.QuickAction
 import com.follow.clash.common.quickIntent
 import com.follow.clash.common.toPendingIntent
@@ -14,7 +13,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
-@RequiresApi(Build.VERSION_CODES.N)
 class TileService : TileService() {
     private var scope: CoroutineScope? = null
     private fun updateTile(runState: RunState) {
@@ -46,6 +44,7 @@ class TileService : TileService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startActivityAndCollapse(pendingIntent)
         } else {
+            @Suppress("DEPRECATION")
             startActivityAndCollapse(intent)
         }
     }

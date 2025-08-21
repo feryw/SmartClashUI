@@ -5,6 +5,7 @@ import com.follow.clash.common.intent
 import com.follow.clash.service.ICallbackInterface
 import com.follow.clash.service.IRemoteInterface
 import com.follow.clash.service.RemoteService
+import com.follow.clash.service.models.NotificationParams
 import com.follow.clash.service.models.VpnOptions
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -27,12 +28,6 @@ object Service {
         }
     }
 
-    fun unbind() {
-        if (bindingState.compareAndSet(true, false)) {
-            delegate.unbind()
-        }
-    }
-
     suspend fun invokeAction(
         data: String, cb: (result: String?) -> Unit
     ) {
@@ -42,6 +37,14 @@ object Service {
                     cb(result)
                 }
             })
+        }
+    }
+
+    suspend fun updateNotificationParams(
+        params: NotificationParams
+    ) {
+        delegate.useService {
+            it.updateNotificationParams(params)
         }
     }
 

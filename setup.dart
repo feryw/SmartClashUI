@@ -7,12 +7,7 @@ import 'package:args/command_runner.dart';
 import 'package:crypto/crypto.dart';
 import 'package:path/path.dart';
 
-enum Target {
-  windows,
-  linux,
-  android,
-  macos,
-}
+enum Target { windows, linux, android, macos }
 
 extension TargetExt on Target {
   String get os {
@@ -77,11 +72,7 @@ class BuildItem {
   Arch? arch;
   String? archName;
 
-  BuildItem({
-    required this.target,
-    this.arch,
-    this.archName,
-  });
+  BuildItem({required this.target, this.arch, this.archName});
 
   @override
   String toString() {
@@ -91,46 +82,16 @@ class BuildItem {
 
 class Build {
   static List<BuildItem> get buildItems => [
-        BuildItem(
-          target: Target.macos,
-          arch: Arch.arm64,
-        ),
-        BuildItem(
-          target: Target.macos,
-          arch: Arch.amd64,
-        ),
-        BuildItem(
-          target: Target.linux,
-          arch: Arch.arm64,
-        ),
-        BuildItem(
-          target: Target.linux,
-          arch: Arch.amd64,
-        ),
-        BuildItem(
-          target: Target.windows,
-          arch: Arch.amd64,
-        ),
-        BuildItem(
-          target: Target.windows,
-          arch: Arch.arm64,
-        ),
-        BuildItem(
-          target: Target.android,
-          arch: Arch.arm,
-          archName: 'armeabi-v7a',
-        ),
-        BuildItem(
-          target: Target.android,
-          arch: Arch.arm64,
-          archName: 'arm64-v8a',
-        ),
-        BuildItem(
-          target: Target.android,
-          arch: Arch.amd64,
-          archName: 'x86_64',
-        ),
-      ];
+    BuildItem(target: Target.macos, arch: Arch.arm64),
+    BuildItem(target: Target.macos, arch: Arch.amd64),
+    BuildItem(target: Target.linux, arch: Arch.arm64),
+    BuildItem(target: Target.linux, arch: Arch.amd64),
+    BuildItem(target: Target.windows, arch: Arch.amd64),
+    BuildItem(target: Target.windows, arch: Arch.arm64),
+    BuildItem(target: Target.android, arch: Arch.arm, archName: 'armeabi-v7a'),
+    BuildItem(target: Target.android, arch: Arch.arm64, archName: 'arm64-v8a'),
+    BuildItem(target: Target.android, arch: Arch.amd64, archName: 'x86_64'),
+  ];
 
   static String get appName => 'FlClash';
 
@@ -151,8 +112,9 @@ class Build {
     if (buildItem.target == Target.android) {
       final ndk = environment['ANDROID_NDK'];
       assert(ndk != null);
-      final prebuiltDir =
-          Directory(join(ndk!, 'toolchains', 'llvm', 'prebuilt'));
+      final prebuiltDir = Directory(
+        join(ndk!, 'toolchains', 'llvm', 'prebuilt'),
+      );
       final prebuiltDirList = prebuiltDir
           .listSync()
           .where((file) => !basename(file.path).startsWith('.'))
@@ -161,13 +123,9 @@ class Build {
         'armeabi-v7a': 'armv7a-linux-androideabi21-clang',
         'arm64-v8a': 'aarch64-linux-android21-clang',
         'x86': 'i686-linux-android21-clang',
-        'x86_64': 'x86_64-linux-android21-clang'
+        'x86_64': 'x86_64-linux-android21-clang',
       };
-      return join(
-        prebuiltDirList.first.path,
-        'bin',
-        map[buildItem.archName],
-      );
+      return join(prebuiltDirList.first.path, 'bin', map[buildItem.archName]);
     }
     return 'gcc';
   }
@@ -215,24 +173,17 @@ class Build {
   }) async {
     final isLib = mode == Mode.lib;
 
-    final items = buildItems.where(
-      (element) {
-        return element.target == target &&
-            (arch == null ? true : element.arch == arch);
-      },
-    ).toList();
+    final items = buildItems.where((element) {
+      return element.target == target &&
+          (arch == null ? true : element.arch == arch);
+    }).toList();
 
     final List<String> corePaths = [];
 
+    final targetOutFilePath = join(outDir, target.name);
+    await File(targetOutFilePath).delete(recursive: true);
     for (final item in items) {
-      final targetOutFilePath = join(
-        outDir,
-        item.target.name,
-      );
-      final outFilePath = join(
-        targetOutFilePath,
-        item.archName,
-      );
+      final outFilePath = join(targetOutFilePath, item.archName);
       final file = File(outFilePath);
       if (file.existsSync()) {
         file.deleteSync(recursive: true);
@@ -241,10 +192,7 @@ class Build {
       final fileName = isLib
           ? '$libName${item.target.dynamicLibExtensionName}'
           : '$coreName${item.target.executableExtensionName}';
-      final realOutPath = join(
-        outFilePath,
-        fileName,
-      );
+      final realOutPath = join(outFilePath, fileName);
       corePaths.add(realOutPath);
 
       final Map<String, String> env = {};
@@ -291,14 +239,8 @@ class Build {
     required String outFilePath,
     required String archName,
   }) async {
-    final includesPath = join(
-      targetOutFilePath,
-      'includes',
-    );
-    final realOutPath = join(
-      includesPath,
-      archName,
-    );
+    final includesPath = join(targetOutFilePath, 'includes');
+    final realOutPath = join(includesPath, archName);
     await Directory(realOutPath).create(recursive: true);
     final targetOutFiles = Directory(outFilePath).listSync();
     final coreFiles = Directory(_coreDir).listSync();
@@ -306,12 +248,9 @@ class Build {
       if (!file.path.endsWith('.h')) {
         continue;
       }
-      print(file.path);
       final targetFilePath = join(realOutPath, basename(file.path));
       final realFile = File(file.path);
-      await realFile.copy(
-        targetFilePath,
-      );
+      await realFile.copy(targetFilePath);
       if (coreFiles.contains(file)) {
         continue;
       }
@@ -321,16 +260,8 @@ class Build {
 
   static Future<void> buildHelper(Target target, String token) async {
     await exec(
-      [
-        'cargo',
-        'build',
-        '--release',
-        '--features',
-        'windows-service',
-      ],
-      environment: {
-        'TOKEN': token,
-      },
+      ['cargo', 'build', '--release', '--features', 'windows-service'],
+      environment: {'TOKEN': token},
       name: 'build helper',
       workingDirectory: _servicesDir,
     );
@@ -399,9 +330,7 @@ class Build {
 class BuildCommand extends Command {
   Target target;
 
-  BuildCommand({
-    required this.target,
-  }) {
+  BuildCommand({required this.target}) {
     if (target == Target.android || target == Target.linux) {
       argParser.addOption(
         'arch',
@@ -409,25 +338,16 @@ class BuildCommand extends Command {
         help: 'The $name build desc',
       );
     } else {
-      argParser.addOption(
-        'arch',
-        help: 'The $name build archName',
-      );
+      argParser.addOption('arch', help: 'The $name build archName');
     }
     argParser.addOption(
       'out',
-      valueHelp: [
-        if (target.same) 'app',
-        'core',
-      ].join(','),
+      valueHelp: [if (target.same) 'app', 'core'].join(','),
       help: 'The $name build arch',
     );
     argParser.addOption(
       'env',
-      valueHelp: [
-        'pre',
-        'stable',
-      ].join(','),
+      valueHelp: ['pre', 'stable'].join(','),
       help: 'The $name build env',
     );
   }
@@ -444,9 +364,7 @@ class BuildCommand extends Command {
       .toList();
 
   Future<void> _getLinuxDependencies(Arch arch) async {
-    await Build.exec(
-      Build.getExecutable('sudo apt update -y'),
-    );
+    await Build.exec(Build.getExecutable('sudo apt update -y'));
     await Build.exec(
       Build.getExecutable('sudo apt install -y ninja-build libgtk-3-dev'),
     );
@@ -456,16 +374,10 @@ class BuildCommand extends Command {
     await Build.exec(
       Build.getExecutable('sudo apt-get install -y libkeybinder-3.0-dev'),
     );
-    await Build.exec(
-      Build.getExecutable('sudo apt install -y locate'),
-    );
+    await Build.exec(Build.getExecutable('sudo apt install -y locate'));
     if (arch == Arch.amd64) {
-      await Build.exec(
-        Build.getExecutable('sudo apt install -y rpm patchelf'),
-      );
-      await Build.exec(
-        Build.getExecutable('sudo apt install -y libfuse2'),
-      );
+      await Build.exec(Build.getExecutable('sudo apt install -y rpm patchelf'));
+      await Build.exec(Build.getExecutable('sudo apt install -y libfuse2'));
 
       final downloadName = arch == Arch.amd64 ? 'x86_64' : 'aarch64';
       await Build.exec(
@@ -473,23 +385,15 @@ class BuildCommand extends Command {
           'wget -O appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-$downloadName.AppImage',
         ),
       );
+      await Build.exec(Build.getExecutable('chmod +x appimagetool'));
       await Build.exec(
-        Build.getExecutable(
-          'chmod +x appimagetool',
-        ),
-      );
-      await Build.exec(
-        Build.getExecutable(
-          'sudo mv appimagetool /usr/local/bin/',
-        ),
+        Build.getExecutable('sudo mv appimagetool /usr/local/bin/'),
       );
     }
   }
 
   Future<void> _getMacosDependencies() async {
-    await Build.exec(
-      Build.getExecutable('npm install -g appdmg'),
-    );
+    await Build.exec(Build.getExecutable('npm install -g appdmg'));
   }
 
   Future<void> _buildDistributor({
@@ -523,8 +427,9 @@ class BuildCommand extends Command {
     final String out = argResults?['out'] ?? (target.same ? 'app' : 'core');
     final archName = argResults?['arch'];
     final env = argResults?['env'] ?? 'pre';
-    final currentArches =
-        arches.where((element) => element.name == archName).toList();
+    final currentArches = arches
+        .where((element) => element.name == archName)
+        .toList();
     final arch = currentArches.isEmpty ? null : currentArches.first;
 
     if (arch == null && target != Target.android) {
@@ -556,10 +461,7 @@ class BuildCommand extends Command {
         );
         return;
       case Target.linux:
-        final targetMap = {
-          Arch.arm64: 'linux-arm64',
-          Arch.amd64: 'linux-x64',
-        };
+        final targetMap = {Arch.arm64: 'linux-arm64', Arch.amd64: 'linux-x64'};
         final targets = [
           'deb',
           if (arch == Arch.amd64) 'appimage',

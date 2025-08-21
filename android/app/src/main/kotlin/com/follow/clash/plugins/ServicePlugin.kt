@@ -5,6 +5,8 @@ import com.follow.clash.State
 import com.follow.clash.awaitResult
 import com.follow.clash.common.Components
 import com.follow.clash.common.GlobalState
+import com.follow.clash.models.AppState
+import com.follow.clash.service.models.NotificationParams
 import com.follow.clash.service.models.VpnOptions
 import com.google.gson.Gson
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -45,6 +47,10 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler,
             handleGetRunTime(result)
         }
 
+        "syncState" -> {
+            handleSyncState(call, result)
+        }
+
         "start" -> {
             handleStart(result)
         }
@@ -73,7 +79,6 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler,
     }
 
     private fun handleServiceCrash() {
-
     }
 
     private fun handleStop(result: MethodChannel.Result) {
@@ -105,6 +110,22 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler,
     }
 
     private fun onServiceCrash() {
+
+    }
+
+    private fun handleSyncState(call: MethodCall, result: MethodChannel.Result) {
+        launch {
+            val data = call.arguments<String>()!!
+            val params = Gson().fromJson(data, AppState::class.java)
+            Service.updateNotificationParams(
+                NotificationParams(
+                    title = params.currentProfileName,
+                    stopText = params.stopText,
+                    onlyStatisticsProxy = params.onlyStatisticsProxy
+                )
+            )
+            result.success(true)
+        }
 
     }
 

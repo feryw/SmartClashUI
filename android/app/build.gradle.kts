@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
 plugins {
@@ -33,10 +34,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-    }
-
     defaultConfig {
         applicationId = "com.follow.clash"
         minSdk = flutter.minSdkVersion
@@ -64,8 +61,7 @@ android {
 
         release {
             isMinifyEnabled = true
-            isDebuggable = false
-
+            isShrinkResources = true
             signingConfig = if (isRelease) {
                 signingConfigs.getByName("release")
             } else {
@@ -77,6 +73,12 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
