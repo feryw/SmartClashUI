@@ -206,16 +206,6 @@ jobs:
             currentTag=$tag
           done
 
-      - name: Determine release tag
-        id: tag
-        run: |
-          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
-            echo "tag=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
-          else
-            # Auto-generate a snapshot tag for main
-            echo "tag=main-$(date +%Y%m%d%H%M)" >> $GITHUB_OUTPUT
-          fi
-
       # - name: Push to telegram
         # env:
           # TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -226,10 +216,25 @@ jobs:
           # pip install requests
           # python release_telegram.py
 
+      - name: Determine release tag
+        id: tag
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            echo "tag=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          else
+            # Auto-generate a snapshot tag for main
+            SNAPSHOT="main-$(date +%Y%m%d%H%M)"
+            echo "tag=$SNAPSHOT" >> $GITHUB_OUTPUT
+            git tag "$SNAPSHOT"
+            git push origin "$SNAPSHOT"
+          fi
+          
       - name: Patch release.md
         run: |
           version=$(echo "${{ steps.tag.outputs.tag }}" | sed 's/^v//')
           sed "s|VERSION|$version|g" ./.github/release_template.md >> release.md
+          git tag "$version"
+          git push origin "$version"
 
       - name: Generate sha256
         if: env.IS_STABLE == 'true'
