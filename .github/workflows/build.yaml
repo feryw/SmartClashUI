@@ -232,9 +232,7 @@ jobs:
       - name: Patch release.md
         run: |
           version=$(echo "${{ steps.tag.outputs.tag }}" | sed 's/^v//')
-          sed "s|VERSION|$version|g" ./.github/release_template.md >> release.md
-          git tag "$version"
-          git push origin "$version"
+          sed "s|VERSION|$version|g" ./.github/release_template.md >> release.m
 
       - name: Generate sha256
         if: env.IS_STABLE == 'true'
