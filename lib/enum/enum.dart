@@ -41,6 +41,7 @@ enum GroupType {
   URLTest,
   Fallback,
   LoadBalance,
+  Smart,
   Relay;
 
   static GroupType parseProfileType(String type) {
@@ -49,6 +50,7 @@ enum GroupType {
       'select' => Selector,
       'fallback' => Fallback,
       'load-balance' => LoadBalance,
+      'smart' => Smart,
       'relay' => Relay,
       String() => throw UnimplementedError(),
     };
@@ -65,7 +67,7 @@ extension GroupTypeExtension on GroupType {
       .toList();
 
   bool get isComputedSelected {
-    return [GroupType.URLTest, GroupType.Fallback].contains(this);
+    return [GroupType.URLTest, GroupType.Fallback, GroupType.Smart].contains(this);
   }
 
   static GroupType? getGroupType(String value) {
